@@ -4,17 +4,6 @@
 #include <functional>
 
 namespace rift {
-/**
-    A simple type pair.
-    @tparam First first type.
-    @tparam Second second type.
-*/
-template <typename First, typename Second>
-struct TypePair {
-    using first = First;
-    using second = Second;
-};
-
 namespace detail {
     struct apply_helper {
         template <typename Func, typename ... Args, size_t ... index>
@@ -37,5 +26,38 @@ constexpr decltype(auto) apply(Func && f, Args&&... args)
     static_assert(n <= sizeof...(args), "Insufficient number of parameters to apply");
     return detail::apply_helper::apply(std::forward<Func>(f), std::make_index_sequence<n>(), std::forward<Args>(args)...);
 }
+
+template <typename ...>
+struct TypeList;
+
+template <typename T>
+struct TypeList<T> {
+    using type = T;
+    using base = std::void_t<>;
+};
+
+template <typename T, typename ... Rest>
+struct TypeList<T, Rest...> : public TypeList<Rest...>
+{
+    using base = TypeList<Rest...>;
+    using type = T;
+};
+
+template <typename List, int index>
+struct Indexer;
+
+template <typename ... Args>
+struct Indexer<TypeList<Args...>, 0>
+{
+    static_assert(sizeof...(Args), "Indexing an empty list");
+    using type = typename TypeList<Args...>::type;
+};
+
+template <typename ... Args, int index>
+struct Indexer<TypeList<Args...>, index>
+{
+    static_assert(index >= 0 && index < sizeof...(Args), "List index out of range");
+    using type = typename Indexer<typename TypeList<Args...>::base, index - 1>::type;
+};
 
 } // namespace rift

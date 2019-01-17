@@ -35,6 +35,6 @@
         static constexpr bool memberPresent = std::is_same<std::true_type, decltype(test<T>(nullptr))>::value;          \
                                                                                                                         \
     public:                                                                                                             \
-        static constexpr bool value = memberPresent && detail::TypeCheck_##member<memberPresent, TargetType, T>::value; \
+        static constexpr bool value = detail::TypeCheck_##member<memberPresent, TargetType, T>::value; \
     };                                                                                                                  \
     }
