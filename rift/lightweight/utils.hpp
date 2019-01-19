@@ -34,6 +34,7 @@ template <typename T>
 struct TypeList<T> {
     using type = T;
     using base = std::void_t<>;
+    static constexpr size_t length = 1;
 };
 
 template <typename T, typename ... Rest>
@@ -41,6 +42,7 @@ struct TypeList<T, Rest...> : public TypeList<Rest...>
 {
     using base = TypeList<Rest...>;
     using type = T;
+    static constexpr size_t length = base::length + 1;
 };
 
 template <typename List, int index>
